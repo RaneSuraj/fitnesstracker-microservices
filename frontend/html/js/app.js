@@ -51,6 +51,15 @@ function countUp(el, target, suffix = "") {
   }
 }
 
+function renderStat(el, value, suffix = "") {
+  if (value === null || value === undefined) {
+    el.textContent = "—";
+    return;
+  }
+
+  countUp(el, value, suffix);
+}
+
 async function handleLogin(e) {
   e.preventDefault();
   try {
@@ -113,30 +122,35 @@ async function loadDashboard() {
   try {
     const data = await Api.dashboard();
     document.getElementById("dash-name").textContent = data.user.full_name.split(" ")[0];
-    countUp(document.getElementById("stat-in"), data.today.calories_consumed);
-    countUp(document.getElementById("stat-out"), data.today.calories_burned);
-    countUp(document.getElementById("stat-net"), data.today.net_calories);
-    countUp(document.getElementById("stat-minutes"), data.today.workout_minutes, " min");
-
+    const workoutAvailable = data.service_status?.workout?.available !== false;
+    const mealAvailable = data.service_status?.meal?.available !== false;
+    renderStat(document.getElementById("stat-in"), data.today.calories_consumed);
+    renderStat(document.getElementById("stat-out"), data.today.calories_burned);
+    renderStat(document.getElementById("stat-net"), data.today.net_calories);
+    renderStat(document.getElementById("stat-minutes"), data.today.workout_minutes, " min");
     const wBox = document.getElementById("dash-recent-workouts");
-    wBox.innerHTML = data.recent_workouts.length
+    if (!workoutAvailable) {
+	wBox.innerHTML = emptyState("bi-exclamation-triangle", "Workout data is temporarily unavailable.");
+    } else { wBox.innerHTML = data.recent_workouts.length
       ? data.recent_workouts.map((w) => `
         <div class="row-item">
           <div class="row-icon ember"><i class="bi bi-fire"></i></div>
           <div class="flex-grow-1"><div class="row-title">${w.title}</div><div class="row-meta">${w.workout_date}</div></div>
           <div class="row-value">${w.calories_burned} kcal</div>
         </div>`).join("")
-      : emptyState("bi-activity", "No workouts logged yet.", "Log your first workout", "showPage('workouts')");
+      : emptyState("bi-activity", "No workouts logged yet.", "Log your first workout", "showPage('workouts')");}
 
     const mBox = document.getElementById("dash-recent-meals");
-    mBox.innerHTML = data.recent_meals.length
+    if(!mealAvailable) {
+	mBox.innerHTML = emptyState("bi-exclamation-triangle", "Meal data is temporarily unavailable.");
+    } else { mBox.innerHTML = data.recent_meals.length
       ? data.recent_meals.map((m) => `
         <div class="row-item">
           <div class="row-icon citrus"><i class="bi bi-egg-fried"></i></div>
           <div class="flex-grow-1"><div class="row-title">${m.name}</div><div class="row-meta">${m.meal_date}</div></div>
           <div class="row-value">${m.calories} kcal</div>
         </div>`).join("")
-      : emptyState("bi-cup-straw", "No meals logged yet.", "Log your first meal", "showPage('meals')");
+      : emptyState("bi-cup-straw", "No meals logged yet.", "Log your first meal", "showPage('meals')");}
   } catch (err) {
     showToast(err.message, "danger");
   }
