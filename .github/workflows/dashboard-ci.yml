@@ -1,0 +1,47 @@
+name: Dashboard Service CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - "services/dashboard-service/**"
+      - ".github/workflows/dashboard-ci.yml"
+
+  push:
+    branches:
+      - develop
+    paths:
+      - "services/dashboard-service/**"
+      - ".github/workflows/dashboard-ci.yml"
+
+jobs:
+  dashboard-tests:
+    name: Dashboard Unit Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: services/dashboard-service
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            services/dashboard-service/requirements.txt
+            services/dashboard-service/requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Run dashboard tests
+        run: |
+          python -m pytest -v
