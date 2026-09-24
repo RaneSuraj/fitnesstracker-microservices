@@ -4,16 +4,10 @@ on:
   pull_request:
     branches:
       - develop
-    paths:
-      - "services/dashboard-service/**"
-      - ".github/workflows/dashboard-ci.yml"
 
   push:
     branches:
       - develop
-    paths:
-      - "services/dashboard-service/**"
-      - ".github/workflows/dashboard-ci.yml"
 
 jobs:
   dashboard-tests:
