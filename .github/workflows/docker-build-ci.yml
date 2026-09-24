@@ -42,7 +42,7 @@ jobs:
 
       - name: Build ${{ matrix.service }} image
         run: |
-          docker build -t fitnesstracker-${{ matrix.service }}:ci ${{ matrix.context }}
+          docker build -t fitnesstracker-${{ matrix.service }}:${{ github.sha }} ${{ matrix.context }}
 
       - name: Report HIGH and CRITICAL vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
