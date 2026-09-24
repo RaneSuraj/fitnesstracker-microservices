@@ -28,7 +28,7 @@ jobs:
             context: services/meal-service
 
           - service: calculator-service
-            context: services/calcullator-service
+            context: services/calculator-service
 
           - service: dashboard-service
             context: services/dashboard-service
