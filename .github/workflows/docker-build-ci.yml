@@ -1,0 +1,45 @@
+name: Docker Build CI
+
+on:
+  pull request:
+    branches:
+      - develop
+
+  push:
+    branches:
+      - develop
+
+jobs:
+  docker-build:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: auth-service
+            context: services/auth-service
+
+          - service: workout-service
+            context: services/workout-service
+
+          - service: meal-service
+            context: services/meal-service
+
+          - service: calculator-service
+            context: services/calcullator-service
+
+          - service: dashboard-service
+            context: services/dashboard-service
+
+          - service: frontend
+            context: frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.service }} image
+        run: |
+          docker build -t fitnesstracker-${{ matrix.service }}:ci ${{ matrix.context }}
